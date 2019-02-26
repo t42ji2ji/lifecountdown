@@ -21,7 +21,7 @@
     <div class="up">
       <button class="chinese btn btn-start" v-on:mouseover="offset_to_zero" v-on:click="start">開始</button>
     </div>
-    <div class="logo" id="logos">Doraralab</div>
+    <a href="https://www.google.com" class="logo" id="logos">Doraralab</a>
   </section>
 </template>
 
@@ -167,6 +167,8 @@ export default {
         document.getElementById("questions").style.display = "flex";
         this.is_active = !this.is_active;
         this.is_choosesex = true
+        this.user.sex = ''
+        this.user.birth = ''
       }
     },
     detect_screen: function() {
@@ -295,6 +297,7 @@ export default {
   cursor: pointer;
   border: 2px solid #000;
   font-size: 0.8rem;
+  color: black;
 }
 
 #banner {
