@@ -18,7 +18,11 @@
     "bootstrap-vue": "^2.0.0-rc.11",
     "cross-env": "^5.2.0",
     "lottie-web": "^5.4.4",
-    "nuxt": "^2.3.4"
+    "luxon": "^1.11.3",
+    "nuxt": "^2.3.4",
+    "vant": "^1.6.6",
+    "vue-datetime": "^1.0.0-beta.10",
+    "weekstart": "^1.0.0"
   },
   "devDependencies": {
     "@vue/test-utils": "^1.0.0-beta.27",

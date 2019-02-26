@@ -3,16 +3,31 @@
     <div class="question chinese" id="questions">
       <h2>{{choose_title}}</h2>
       <div class="choose">
-        <div id="boy" class="sexual" v-on:mouseover="playanim(true)" v-on:mouseleave="stopanim(true)" v-on:click="choose_sex(true)" v-show="is_choosesex">
+        <div
+          id="boy"
+          class="sexual"
+          v-on:mouseover="playanim(true)"
+          v-on:mouseleave="stopanim(true)"
+          v-on:click="choose_sex(true)"
+          v-show="is_choosesex"
+        >
           <div id="bodymovin"></div>
           <h3>男生</h3>
         </div>
-        <div id="girl" class="sexual" v-on:mouseover="playanim(false)" v-on:mouseleave="stopanim(false)" v-on:click="choose_sex(false)" v-show="is_choosesex">
+        <div
+          id="girl"
+          class="sexual"
+          v-on:mouseover="playanim(false)"
+          v-on:mouseleave="stopanim(false)"
+          v-on:click="choose_sex(false)"
+          v-show="is_choosesex"
+        >
           <div id="bodymovin_2"></div>
           <h3>女生</h3>
         </div>
-        <div class="birthday">
-
+        <div class="birthday" v-show="!is_choosesex">
+            <datetime v-model="user['birth']" class="theme-dark"></datetime>
+            <div class="datepicker btn">西元年/月/日</div>
         </div>
       </div>
       <div class="btn" v-on:click="btn_continue">{{choose_btn}}</div>
@@ -22,11 +37,17 @@
       <button class="chinese btn btn-start" v-on:mouseover="offset_to_zero" v-on:click="start">開始</button>
     </div>
     <a href="https://www.google.com" class="logo" id="logos">Doraralab</a>
+
+    <!-- <div class="keyboard" v-if="!is_mobile">
+      <van-datetime-picker v-model="currentDate" type="date" :confirm-button-text="comfirm_text" :cancel-button-text="cancel_text"/>
+    </div> -->
   </section>
+
 </template>
 
 <script>
 import Logo from "~/components/Logo.vue";
+
 let bodymovin;
 if (process.browser) {
   bodymovin = require("bodymovin");
@@ -38,6 +59,9 @@ export default {
   },
   data() {
     return {
+      comfirm_text: "ok",
+      cancel_text: "cancel",
+      currentDate: new Date(),
       mousevalue: 0,
       title_size: 80,
       offset_X: 0,
@@ -50,7 +74,7 @@ export default {
       is_mobile: 1,
       user: {
         sex: "",
-        birth: ""
+        birth: "生日"
       },
       is_choosesex: true,
       choose_btn: "繼續",
@@ -85,35 +109,40 @@ export default {
     if (process.browser) {
       this.addfigure();
     }
+    if(this.is_mobile){
+      this.datpicker();
+    }
   },
   methods: {
+    datpicker: function() {
+    },
     btn_continue: function() {
-      if(this.user.sex == "") {
-        alert("先選性別")
-        return
+      if (this.user.sex == "") {
+        alert("先選性別");
+        return;
       }
 
-      if(!this.is_choosesex){
-        this.choose_btn = "繼續"
-        this.choose_title = "你是....?"
-        this.start()
+      if (!this.is_choosesex) {
+        this.choose_btn = "繼續";
+        this.choose_title = "你是....?";
+        this.start();
       }
-      this.is_choosesex = false
-      this.choose_btn = "完成"
-      this.choose_title = "生日"
+      this.is_choosesex = false;
+      this.choose_btn = "完成";
+      this.choose_title = "生日";
     },
-    choose_birthday: function(){
-
-    },
-    choose_sex: function(t){
-      if(t){
-        this.user.sex = "boy"
-        document.getElementById('boy').style.backgroundColor = "rgba(255, 203, 85, 0.9)"
-        document.getElementById('girl').style.backgroundColor = "white"
+    choose_birthday: function() {},
+    choose_sex: function(t) {
+      if (t) {
+        this.user.sex = "boy";
+        document.getElementById("boy").style.backgroundColor =
+          "rgba(255, 203, 85, 0.9)";
+        document.getElementById("girl").style.backgroundColor = "white";
       } else {
-        this.user.sex = "girl"
-        document.getElementById('boy').style.backgroundColor = "white"
-        document.getElementById('girl').style.backgroundColor = "rgba(255, 203, 85, 0.9)"
+        this.user.sex = "girl";
+        document.getElementById("boy").style.backgroundColor = "white";
+        document.getElementById("girl").style.backgroundColor =
+          "rgba(255, 203, 85, 0.9)";
       }
     },
     playanim: function(t) {
@@ -160,15 +189,15 @@ export default {
         document.body.style.backgroundColor = "white";
         document.getElementById("questions").style.display = "none";
         this.is_active = !this.is_active;
-        this.is_choosesex = false
+        this.is_choosesex = false;
       } else {
         document.getElementById("logos").style.color = "white";
         document.body.style.backgroundColor = "black";
         document.getElementById("questions").style.display = "flex";
         this.is_active = !this.is_active;
-        this.is_choosesex = true
-        this.user.sex = ''
-        this.user.birth = ''
+        this.is_choosesex = true;
+        this.user.sex = "";
+        this.user.birth = "輸入生日";
       }
     },
     detect_screen: function() {
@@ -188,7 +217,6 @@ export default {
     angleBetweenPointsInDegrees: function(x, y) {
       var angle = (Math.atan2(y - 0.5, x - 0.5) * 180.0) / Math.PI;
       angle = 180 + angle;
-
       return angle;
     },
     distanceBetweenPoints: function(x, y) {
@@ -347,7 +375,7 @@ export default {
 
 .question {
   background-color: #fff;
-  width: 30%;
+  width: 40%;
   height: 60%;
   position: absolute;
   z-index: 999;
@@ -363,6 +391,8 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+  width: 100%;
+  height: 70%;
 }
 
 .sexual {
@@ -371,6 +401,13 @@ export default {
 
 .sexual:hover {
   background-color: rgba(255, 203, 85, 0.9);
+}
+
+.birthday {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 #bodymovin {
@@ -403,6 +440,14 @@ body {
   animation: flash 1s infinite;
 }
 
+.keyboard {
+  position: absolute;
+  width: 100%;
+  height: 30%;
+  bottom: -20%;
+  transition: 1s;
+}
+
 @keyframes flash {
   0% {
     background-color: rgb(255, 90, 247);
@@ -416,5 +461,17 @@ body {
   100% {
     background-color: rgb(255, 90, 247);
   }
+}
+
+.theme-dark .vdatetime-popup__header,
+.theme-dark .vdatetime-calendar__month__day--selected > span > span,
+.theme-dark .vdatetime-calendar__month__day--selected:hover > span > span {
+  background: #000;
+}
+
+.theme-dark .vdatetime-year-picker__item--selected,
+.theme-dark .vdatetime-time-picker__item--selected,
+.theme-dark .vdatetime-popup__actions__button {
+  color: #000;
 }
 </style>
