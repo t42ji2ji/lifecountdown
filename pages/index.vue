@@ -1,26 +1,25 @@
 <template>
   <section class="container" v-on:mousemove="detect_mouse">
     <div class="question chinese" id="questions">
-      <h2>你是...?</h2>
+      <h2>{{choose_title}}</h2>
       <div class="choose">
-        <div class="sexual" v-on:mouseover="playanim(true)" v-on:mouseleave="stopanim(true)">
+        <div id="boy" class="sexual" v-on:mouseover="playanim(true)" v-on:mouseleave="stopanim(true)" v-on:click="choose_sex(true)" v-show="is_choosesex">
           <div id="bodymovin"></div>
           <h3>男生</h3>
         </div>
-        <div class="sexual" v-on:mouseover="playanim(false)" v-on:mouseleave="stopanim(false)">
+        <div id="girl" class="sexual" v-on:mouseover="playanim(false)" v-on:mouseleave="stopanim(false)" v-on:click="choose_sex(false)" v-show="is_choosesex">
           <div id="bodymovin_2"></div>
           <h3>女生</h3>
         </div>
+        <div class="birthday">
+
+        </div>
       </div>
-      <div class="btn" v-on:click="start">確認</div>
+      <div class="btn" v-on:click="btn_continue">{{choose_btn}}</div>
     </div>
     <div id="banner"></div>
     <div class="up">
-      <button
-        class="chinese btn btn-start"
-        v-on:mouseover="offset_to_zero"
-        v-on:click="start"
-      >開始</button>
+      <button class="chinese btn btn-start" v-on:mouseover="offset_to_zero" v-on:click="start">開始</button>
     </div>
     <div class="logo" id="logos">Doraralab</div>
   </section>
@@ -47,8 +46,15 @@ export default {
       is_active: true,
       fig1: null,
       fig2: null,
-      padding: [400,400,300,450],
-      is_mobile: 1
+      padding: [400, 400, 300, 450],
+      is_mobile: 1,
+      user: {
+        sex: "",
+        birth: ""
+      },
+      is_choosesex: true,
+      choose_btn: "繼續",
+      choose_title: "你是....?"
     };
   },
   head() {
@@ -81,6 +87,35 @@ export default {
     }
   },
   methods: {
+    btn_continue: function() {
+      if(this.user.sex == "") {
+        alert("先選性別")
+        return
+      }
+
+      if(!this.is_choosesex){
+        this.choose_btn = "繼續"
+        this.choose_title = "你是....?"
+        this.start()
+      }
+      this.is_choosesex = false
+      this.choose_btn = "完成"
+      this.choose_title = "生日"
+    },
+    choose_birthday: function(){
+
+    },
+    choose_sex: function(t){
+      if(t){
+        this.user.sex = "boy"
+        document.getElementById('boy').style.backgroundColor = "rgba(255, 203, 85, 0.9)"
+        document.getElementById('girl').style.backgroundColor = "white"
+      } else {
+        this.user.sex = "girl"
+        document.getElementById('boy').style.backgroundColor = "white"
+        document.getElementById('girl').style.backgroundColor = "rgba(255, 203, 85, 0.9)"
+      }
+    },
     playanim: function(t) {
       if (t) {
         this.fig1.play();
@@ -103,7 +138,7 @@ export default {
         wrapper: svgContainer,
         animType: "svg",
         autoplay: false,
-        loop: true,
+        loop: false,
         path: "/data.json"
       });
       var animItem2 = bodymovin.loadAnimation({
@@ -125,11 +160,13 @@ export default {
         document.body.style.backgroundColor = "white";
         document.getElementById("questions").style.display = "none";
         this.is_active = !this.is_active;
+        this.is_choosesex = false
       } else {
         document.getElementById("logos").style.color = "white";
         document.body.style.backgroundColor = "black";
         document.getElementById("questions").style.display = "flex";
         this.is_active = !this.is_active;
+        this.is_choosesex = true
       }
     },
     detect_screen: function() {
@@ -138,14 +175,11 @@ export default {
           navigator.userAgent
         )
       ) {
-        this.is_mobile = 0
-      } else {
-        this.is_mobile = 1
-      }
-      if (screen.width < 420) {
+        this.is_mobile = 0;
         this.title_size = 60;
         document.getElementById("questions").style.width = "90%";
       } else {
+        this.is_mobile = 1;
         this.title_size = 100;
       }
     },

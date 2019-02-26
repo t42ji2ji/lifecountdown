@@ -19,8 +19,6 @@ module.exports = {
       { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css?family=Fredoka+One' }
     ],
     script: [
-      { src: '/blotter.min.js' },
-      { src: '/channelSplitMaterial.js'}
     ]
   },
 
@@ -57,7 +55,6 @@ module.exports = {
     /*
     ** You can extend webpack config here
     */
-   vendor:['bodymovin'],
     extend(config, ctx) {
       
     }
