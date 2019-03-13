@@ -193,11 +193,13 @@ export default {
         } else {
           console.log("no");
         }
+        if(this.is_mobile != 0){
+          content.addEventListener("mousemove", e => {
+            console.log(e.clientX, e.clientY);
+            vm.text_animate_setting(e.clientX, e.clientY, elem, b_canvas, values, radTodegrees);
+          });
 
-        content.addEventListener("mousemove", e => {
-          console.log(e.clientX, e.clientY);
-          vm.text_animate_setting(e.clientX, e.clientY, elem, b_canvas, values, radTodegrees);
-        });
+        }
 
         const animate = () => {
           b_canvas.style.transform = `translate3d(mouse.x,0,0)`;
