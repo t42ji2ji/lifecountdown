@@ -175,8 +175,8 @@ export default {
               var alpha = event.alpha;
               var beta = event.beta;
               var gamma = event.gamma;
-              vm.betas = beta + 60;
-              vm.gamas = gamma;
+              vm.betas = beta - 90;
+              vm.gamas = alpha;
               vm.text_animate_setting(
                 Math.floor(vm.pos_reg[0] + vm.pos_reg[2] * vm.gamas),
                 Math.floor(vm.pos_reg[1] + vm.pos_reg[3] * vm.betas),
