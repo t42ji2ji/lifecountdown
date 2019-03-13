@@ -1,48 +1,38 @@
-<template>
-  <section class="container" v-on:mousemove="detect_mouse">
-    <div class="question chinese" id="questions">
-      <h2>{{choose_title}}</h2>
-      <div class="choose">
-        <div
-          id="boy"
-          class="sexual"
-          v-on:mouseover="playanim(true)"
-          v-on:mouseleave="stopanim(true)"
-          v-on:click="choose_sex(true)"
-          v-show="is_choosesex"
-        >
-          <div id="bodymovin"></div>
-          <h3>男生</h3>
-        </div>
-        <div
-          id="girl"
-          class="sexual"
-          v-on:mouseover="playanim(false)"
-          v-on:mouseleave="stopanim(false)"
-          v-on:click="choose_sex(false)"
-          v-show="is_choosesex"
-        >
-          <div id="bodymovin_2"></div>
-          <h3>女生</h3>
-        </div>
-        <div class="birthday" v-show="!is_choosesex">
-            <datetime v-model="user['birth']" class="theme-dark"></datetime>
-            <div class="datepicker btn">西元年/月/日</div>
-        </div>
-      </div>
-      <div class="btn" v-on:click="btn_continue">{{choose_btn}}</div>
-    </div>
-    <div id="banner"></div>
-    <div class="up">
-      <button class="chinese btn btn-start" v-on:mouseover="offset_to_zero" v-on:click="start">開始</button>
-    </div>
-    <a href="https://www.google.com" class="logo" id="logos">Doraralab</a>
+<template lang="pug">
+ section.container
+  #questions.question.chinese
+    h2 {{choose_title}}
+    .choose
+      #boy.sexual(v-on:mouseover='playanim(true)', v-on:mouseleave='stopanim(true)', v-on:click='choose_sex(true)', v-show='is_choosesex')
+        #bodymovin
+        h3 男生
+      #girl.sexual(v-on:mouseover='playanim(false)', v-on:mouseleave='stopanim(false)', v-on:click='choose_sex(false)', v-show='is_choosesex')
+        #bodymovin_2
+        h3 女生
+      .birthday(v-show='!is_choosesex')
+        datetime.theme-dark(v-model="user['birth']", format='yyyy-MM-dd') 西元年/月/日
+    .btn(v-on:click='btn_continue') {{choose_btn}}
+  #banner
+    .content 
+      #cc.countdown(v-if='is_countdown',) 
+        span#hint 人生只剩下
+        <br> {{timer}}
+        //- .times(v-for='(item, index) in timer_split')
+        //-   | {{ item }}
 
-    <!-- <div class="keyboard" v-if="!is_mobile">
-      <van-datetime-picker v-model="currentDate" type="date" :confirm-button-text="comfirm_text" :cancel-button-text="cancel_text"/>
-    </div> -->
-  </section>
+        //- - for(var i = 0; i < 6; i++)
+        //-   .times {{timer_split[i]}}
 
+      .char(v-for='(item, index) in banner_length', v-if='!is_countdown', :class="['c-' + index]")
+
+          //- div(class=`c-${index} char`)
+  .up
+    button.chinese.btn.btn-start(v-on:click='start') 開始
+  a#logos.logo(href='https://www.google.com') Doraralab
+  //
+    <div class="keyboard" v-if="!is_mobile">
+    <van-datetime-picker v-model="currentDate" type="date" :confirm-button-text="comfirm_text" :cancel-button-text="cancel_text"/>
+    </div>
 </template>
 
 <script>
@@ -59,6 +49,7 @@ export default {
   },
   data() {
     return {
+      timer: "asd",
       comfirm_text: "ok",
       cancel_text: "cancel",
       currentDate: new Date(),
@@ -68,17 +59,20 @@ export default {
       offset_Y: 0,
       myscope: null,
       is_active: true,
+      is_countdown: false,
       fig1: null,
       fig2: null,
       padding: [400, 400, 300, 450],
       is_mobile: 1,
       user: {
-        sex: "",
+        sex: "girl",
         birth: "生日"
       },
-      is_choosesex: true,
+      is_choosesex: false,
       choose_btn: "繼續",
-      choose_title: "你是....?"
+      choose_title: "生理性別",
+      banner: "人生倒數計時",
+      is_choosebirth: false
     };
   },
   head() {
@@ -99,23 +93,139 @@ export default {
         {
           src:
             "https://cdnjs.cloudflare.com/ajax/libs/gsap/1.20.2/TweenMax.min.js"
+        },
+        {
+          src:
+            "https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/2.8.1/gl-matrix-min.js"
         }
       ]
     };
   },
   mounted() {
     this.detect_screen();
-    this.blotter();
+    // this.blotter();
+    this.textAnimated(this.banner);
     if (process.browser) {
       this.addfigure();
     }
-    if(this.is_mobile){
+    if (this.is_mobile) {
       this.datpicker();
     }
   },
-  methods: {
-    datpicker: function() {
+  computed: {
+    banner_length: function() {
+      return this.banner.split("");
     },
+    timer_split: function() {
+      return this.timer.split(" ");
+    }
+  },
+  methods: {
+    textAnimated: function(chars) {
+      const content = document.querySelector(".content");
+      const rAF = requestAnimationFrame;
+      chars.split("").forEach((char, i) => {
+        const text = new Blotter.Text(char, {
+          family: "serif",
+          size: this.title_size,
+          fill: "#171717"
+        });
+        const values = {
+          degrees: Math.random() * 2 - 1,
+          maxDist: 0.02
+        };
+        const material = new Blotter.ChannelSplitMaterial();
+        const blotter = new Blotter(material, {
+          texts: text
+        });
+        const elem = document.querySelector(`.c-${i}`);
+        const scope = blotter.forText(text);
+        const radTodegrees = 180 / Math.PI;
+
+        scope.appendTo(elem);
+
+        const b_canvas = elem.querySelector(".b-canvas");
+
+        content.addEventListener("mousemove", e => {
+          const bounds = b_canvas.getBoundingClientRect();
+          const radiusX = bounds.width / 2;
+          const radiusY = bounds.height / 2;
+          const offX = bounds.left + radiusX;
+          const offY = bounds.top + radiusY;
+          const mouse = vec2.fromValues(e.clientX, e.clientY);
+          const offset = vec2.fromValues(offX, offY);
+          const rad = angleTo(mouse, offset);
+          const dist = vec2.distance(mouse, offset);
+
+          values.degrees = angle360(radTodegrees * rad);
+          values.maxDist = Math.min(
+            Math.min(dist / radiusX, dist / radiusY) * 0.02,
+            0.05
+          );
+        });
+
+        const animate = () => {
+          b_canvas.style.transform = `translate3d(mouse.x,0,0)`;
+          material.uniforms.uOffset.value = values.maxDist + 0.01;
+          material.uniforms.uRotation.value = values.degrees;
+          material.uniforms.uApplyBlur.value = values.maxDist;
+          material.uniforms.uAnimateNoise.value = values.maxDist;
+          rAF(animate);
+        };
+        animate();
+      });
+      const angleTo = ([x1, y1], [x2, y2]) => Math.atan2(y1 - y2, x1 - x2);
+      const angle360 = x => (x + 360) % 360;
+    },
+    birthcountdown: function() {
+      this.is_countdown = true;
+      var nowdate = new Date();
+      let girl_day = 30571;
+      let boy_day = 28226;
+      var bir = new Date(this.user.birth);
+      if (this.user["sex"] == "girl") {
+        bir.setDate(bir.getDate() + girl_day);
+      } else {
+        bir.setDate(bir.getDate() + boy_day);
+      }
+
+      setInterval(() => {
+        var date = new Date();
+        var countDownDate = bir - date;
+        var years = Math.floor(countDownDate / (1000 * 60 * 60 * 24 * 365));
+        var days = Math.floor(
+          (countDownDate % (1000 * 60 * 60 * 24 * 365)) / (1000 * 60 * 60 * 24)
+        );
+        var hours = Math.floor(
+          (countDownDate % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+        );
+        var minutes = Math.floor(
+          (countDownDate % (1000 * 60 * 60)) / (1000 * 60)
+        );
+        var seconds = Math.floor((countDownDate % (1000 * 60)) / 1000);
+        var ms = Math.floor(countDownDate % 1000);
+        if(ms<100){
+          ms = '0' + ms
+          if(ms<10){
+            ms = '00' + ms
+          }
+        }
+        this.timer =
+          years +
+          "y " +
+          days +
+          "d " +
+          hours +
+          "h \n " +
+          minutes +
+          "m " +
+          seconds +
+          "s " +
+          ms +
+          "ms";
+      }, 1);
+    },
+    datpicker: function() {},
     btn_continue: function() {
       if (this.user.sex == "") {
         alert("先選性別");
@@ -124,12 +234,18 @@ export default {
 
       if (!this.is_choosesex) {
         this.choose_btn = "繼續";
-        this.choose_title = "你是....?";
+        this.choose_title = "生理性別";
+        if (this.user.birth == "") {
+          alert("先選生日");
+          return;
+        }
+        this.birthcountdown();
         this.start();
       }
       this.is_choosesex = false;
       this.choose_btn = "完成";
       this.choose_title = "生日";
+      console.log(this.is_choosebirth);
     },
     choose_birthday: function() {},
     choose_sex: function(t) {
@@ -197,7 +313,7 @@ export default {
         this.is_active = !this.is_active;
         this.is_choosesex = true;
         this.user.sex = "";
-        this.user.birth = "輸入生日";
+        this.user.birth = "";
       }
     },
     detect_screen: function() {
@@ -209,94 +325,11 @@ export default {
         this.is_mobile = 0;
         this.title_size = 60;
         document.getElementById("questions").style.width = "90%";
+        document.getElementById("questions").style.height = "70%";
       } else {
         this.is_mobile = 1;
-        this.title_size = 100;
+        this.title_size = 150;
       }
-    },
-    angleBetweenPointsInDegrees: function(x, y) {
-      var angle = (Math.atan2(y - 0.5, x - 0.5) * 180.0) / Math.PI;
-      angle = 180 + angle;
-      return angle;
-    },
-    distanceBetweenPoints: function(x, y) {
-      var a = 0.5 - x;
-      var b = 0.5 - y;
-
-      return Math.sqrt(a * a + b * b);
-    },
-    offset_to_zero: function() {
-      this.myscope.material.uniforms.uRotation.value = 45;
-      this.myscope.material.uniforms.uOffset.value = 0;
-    },
-    detect_mouse: function() {
-      var x = (event.clientX * 100) / window.innerWidth;
-      var y = (event.clientY * 100) / window.innerHeight;
-      this.offset_X = x;
-      this.offset_Y = y;
-    },
-    blotter: function() {
-      // https://blotter.js.org
-      // Define text style
-      const text = new Blotter.Text("人生倒計時", {
-        family: "'Kosugi Maru', 'Source Sans Pro'",
-        size: this.title_size,
-        paddingLeft: 400 * this.is_mobile,
-        paddingRight: 400 * this.is_mobile,
-        paddingTop: 300 * this.is_mobile,
-        paddingBottom: 300 * this.is_mobile + 50
-      });
-
-      // Use a material
-      // https://blotter.js.org/#/materials
-      // Channel Split Material
-      let material = new Blotter.ChannelSplitMaterial();
-
-      // Set material opts
-      material.uniforms.uOffset.value = 0.05;
-      material.uniforms.uRotation.value = 45;
-      material.uniforms.uApplyBlur.value = 1;
-      material.uniforms.uAnimateNoise.value = 1;
-
-      let blotter = new Blotter(material, {
-        texts: text
-      });
-      // Apply to element
-      let myScope = blotter.forText(text);
-      let elem = document.getElementById("banner");
-      let vm = this;
-      myScope.appendTo(elem);
-      this.myscope = myScope;
-      myScope.on("mousemove", function(mousePosition) {
-        var angle = vm.angleBetweenPointsInDegrees(
-          mousePosition.x,
-          mousePosition.y
-        );
-        var blur = Math.min(
-          0.07,
-          vm.distanceBetweenPoints(mousePosition.x, mousePosition.y)
-        );
-        myScope.material.uniforms.uRotation.value = angle;
-        myScope.material.uniforms.uOffset.value = blur;
-        console.log("--", mousePosition.x, mousePosition.y);
-      });
-
-      // elem.addEventListener("mousemove", function(mousePosition) {
-      //   var angle = vm.angleBetweenPointsInDegrees(
-      //     mousePosition.x.toFixed(1) / 100,
-      //     mousePosition.y.toFixed(1) / 100
-      //   );
-      //   var blur = Math.min(
-      //     0.04,
-      //     vm.distanceBetweenPoints(
-      //       mousePosition.x.toFixed(1) / 100,
-      //       mousePosition.y.toFixed(1) / 100
-      //     )
-      //   );
-      //   myScope.material.uniforms.uRotation.value = angle;
-      //   myScope.material.uniforms.uOffset.value = blur;
-      //   console.log("++", mousePosition.x, mousePosition.y);
-      // });
     }
   }
 };
@@ -367,16 +400,16 @@ export default {
 }
 
 .btn-start {
-  margin-top: 10rem;
+  margin-top: 20rem;
   padding: 10px 20px;
   cursor: pointer;
-  animation: flash 3s infinite;
+  /* animation: flash 3s infinite; */
 }
 
 .question {
   background-color: #fff;
-  width: 40%;
-  height: 60%;
+  width: 50rem;
+  height: 50rem;
   position: absolute;
   z-index: 999;
   display: flex;
@@ -400,7 +433,7 @@ export default {
 }
 
 .sexual:hover {
-  background-color: rgba(255, 203, 85, 0.9);
+  animation: flash 5s infinite;
 }
 
 .birthday {
@@ -474,4 +507,48 @@ body {
 .theme-dark .vdatetime-popup__actions__button {
   color: #000;
 }
+
+.content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+  height: 100vh;
+}
+
+.char {
+  margin-bottom: 5rem;
+}
+
+#hint {
+  font-size: 2rem;
+}
+
+.countdown {
+  font-family: "Roboto Mono";
+  font-weight: bold;
+  width: 80vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 4rem;
+  flex-direction: column;
+}
+
+
+@media only screen and (max-width: 600px){
+  .countdown{
+    font-size: 1.5rem;
+  }
+}
+
+
+
+
+/* .times {
+  width: 20%;
+  flex: 1;
+  padding: 1em;
+} */
 </style>
