@@ -30,7 +30,7 @@
           //- div(class=`c-${index} char`)
   .up
     button.chinese.btn.btn-start(v-on:click='start') 開始
-  a#logos.logo(href='https://www.google.com') Doraralab
+  a#logos.logo(href='https://www.instagram.com/doraralab/') Doraralab
   //
     <div class="keyboard" v-if="!is_mobile">
     <van-datetime-picker v-model="currentDate" type="date" :confirm-button-text="comfirm_text" :cancel-button-text="cancel_text"/>
@@ -582,6 +582,10 @@ body {
 #hint {
   font-size: 2rem;
   margin-bottom: -2rem;
+}
+
+#logos{
+  margin-top: 1rem
 }
 
 .countdown {
