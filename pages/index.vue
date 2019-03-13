@@ -10,7 +10,9 @@
         #bodymovin_2
         h3 女生
       .birthday(v-show='!is_choosesex')
-        datetime.theme-dark(v-model="user['birth']", format='yyyy-MM-dd') 西元年/月/日
+        .happy
+          img.birthimg(src="birth.png", alt="", v-on:click="pressimg")
+          datetime.theme-dark(v-model="user['birth']", format='yyyy-MM-dd', placeholder="西元年/月/日") 
     .btn(v-on:click='btn_continue') {{choose_btn}}
   #banner
     .content 
@@ -27,7 +29,7 @@
 
           //- div(class=`c-${index} char`)
   .up
-    button.chinese.btn.btn-start(v-on:click='start') 開始
+    button.chinese.btn.btn-start(v-on:click='start') 開始 {{tests}}
   a#logos.logo(href='https://www.google.com') Doraralab
   //
     <div class="keyboard" v-if="!is_mobile">
@@ -37,6 +39,7 @@
 
 <script>
 import Logo from "~/components/Logo.vue";
+// import { clearInterval } from 'timers';
 
 let bodymovin;
 if (process.browser) {
@@ -49,6 +52,8 @@ export default {
   },
   data() {
     return {
+      tests: 0,
+      stop_timmer: null,
       timer: "asd",
       comfirm_text: "ok",
       cancel_text: "cancel",
@@ -72,7 +77,10 @@ export default {
       choose_btn: "繼續",
       choose_title: "生理性別",
       banner: "人生倒數計時",
-      is_choosebirth: false
+      is_choosebirth: false,
+      pos_reg: [],
+      betas: 0,
+      gamas: 0
     };
   },
   head() {
@@ -121,6 +129,9 @@ export default {
     }
   },
   methods: {
+    pressimg: function() {
+      document.querySelector(".vdatetime-input").click();
+    },
     textAnimated: function(chars) {
       const content = document.querySelector(".content");
       const rAF = requestAnimationFrame;
@@ -145,23 +156,47 @@ export default {
         scope.appendTo(elem);
 
         const b_canvas = elem.querySelector(".b-canvas");
+        var vm = this;
+        var w = window,
+          d = document,
+          e = d.documentElement,
+          g = d.getElementsByTagName("body")[0],
+          x = w.innerWidth || e.clientWidth || g.clientWidth,
+          y = w.innerHeight || e.clientHeight || g.clientHeight;
+        console.log(x + " × " + y);
+        var centerpoint = [x / 2, y / 2];
+        var w1 = x / 360;
+        var y1 = y / 180;
+        this.pos_reg = [x / 2, y / 2, w1, y1];
+        if (window.DeviceOrientationEvent) {
+          window.addEventListener(
+            "deviceorientation",
+            function(event) {
+              var alpha = event.alpha;
+              var beta = event.beta;
+              var gamma = event.gamma;
+              vm.betas = beta;
+              vm.gamas = gamma;
+              vm.text_animate_setting(
+                Math.floor(vm.pos_reg[0] + vm.pos_reg[2] * vm.gamas),
+                Math.floor(vm.pos_reg[1] + vm.pos_reg[3] * vm.betas),
+                elem,
+                b_canvas, values, radTodegrees
+              );
+              console.log(
+                vm.pos_reg[0] + vm.pos_reg[2]*vm.gamas, "\n",
+                vm.pos_reg[1] + vm.pos_reg[3]*vm.betas
+              );
+            },
+            false
+          );
+        } else {
+          console.log("no");
+        }
 
         content.addEventListener("mousemove", e => {
-          const bounds = b_canvas.getBoundingClientRect();
-          const radiusX = bounds.width / 2;
-          const radiusY = bounds.height / 2;
-          const offX = bounds.left + radiusX;
-          const offY = bounds.top + radiusY;
-          const mouse = vec2.fromValues(e.clientX, e.clientY);
-          const offset = vec2.fromValues(offX, offY);
-          const rad = angleTo(mouse, offset);
-          const dist = vec2.distance(mouse, offset);
-
-          values.degrees = angle360(radTodegrees * rad);
-          values.maxDist = Math.min(
-            Math.min(dist / radiusX, dist / radiusY) * 0.02,
-            0.05
-          );
+          console.log(e.clientX, e.clientY);
+          vm.text_animate_setting(e.clientX, e.clientY, elem, b_canvas, values, radTodegrees);
         });
 
         const animate = () => {
@@ -174,8 +209,26 @@ export default {
         };
         animate();
       });
-      const angleTo = ([x1, y1], [x2, y2]) => Math.atan2(y1 - y2, x1 - x2);
+    },
+    text_animate_setting: function(x, y, elem, b_canvas, values, radTodegrees) {
+            const angleTo = ([x1, y1], [x2, y2]) => Math.atan2(y1 - y2, x1 - x2);
       const angle360 = x => (x + 360) % 360;
+      const bounds = b_canvas.getBoundingClientRect();
+      const radiusX = bounds.width / 2;
+      const radiusY = bounds.height / 2;
+      const offX = bounds.left + radiusX;
+      const offY = bounds.top + radiusY;
+      const mouse = vec2.fromValues(x, y);
+      const offset = vec2.fromValues(offX, offY);
+      const rad = angleTo(mouse, offset);
+      const dist = vec2.distance(mouse, offset);
+
+      values.degrees = angle360(radTodegrees * rad);
+      values.maxDist = Math.min(
+        Math.min(dist / radiusX, dist / radiusY) * 0.02,
+        0.05
+      );
+
     },
     birthcountdown: function() {
       this.is_countdown = true;
@@ -189,7 +242,7 @@ export default {
         bir.setDate(bir.getDate() + boy_day);
       }
 
-      setInterval(() => {
+      this.stop_timmer = setInterval(() => {
         var date = new Date();
         var countDownDate = bir - date;
         var years = Math.floor(countDownDate / (1000 * 60 * 60 * 24 * 365));
@@ -204,11 +257,13 @@ export default {
         );
         var seconds = Math.floor((countDownDate % (1000 * 60)) / 1000);
         var ms = Math.floor(countDownDate % 1000);
-        if(ms<100){
-          ms = '0' + ms
-          if(ms<10){
-            ms = '00' + ms
+        if (ms < 100) {
+          ms = "0" + ms;
+          if (ms < 10) {
+            ms = "00" + ms;
           }
+        } else if (ms >= 1000) {
+          ms = "999";
         }
         this.timer =
           years +
@@ -245,7 +300,6 @@ export default {
       this.is_choosesex = false;
       this.choose_btn = "完成";
       this.choose_title = "生日";
-      console.log(this.is_choosebirth);
     },
     choose_birthday: function() {},
     choose_sex: function(t) {
@@ -306,6 +360,8 @@ export default {
         document.getElementById("questions").style.display = "none";
         this.is_active = !this.is_active;
         this.is_choosesex = false;
+        this.user.sex = "";
+        this.user.birth = "";
       } else {
         document.getElementById("logos").style.color = "white";
         document.body.style.backgroundColor = "black";
@@ -314,6 +370,9 @@ export default {
         this.is_choosesex = true;
         this.user.sex = "";
         this.user.birth = "";
+        this.choose_btn = "繼續";
+        this.choose_title = "生理性別";
+        clearInterval(this.stop_timmer);
       }
     },
     detect_screen: function() {
@@ -522,6 +581,7 @@ body {
 
 #hint {
   font-size: 2rem;
+  margin-bottom: -2rem;
 }
 
 .countdown {
@@ -534,17 +594,20 @@ body {
   align-items: center;
   font-size: 4rem;
   flex-direction: column;
+  margin-bottom: 5rem;
 }
 
+.birthimg {
+  height: 20rem;
+  width: 20rem;
+  margin: 2rem;
+}
 
-@media only screen and (max-width: 600px){
-  .countdown{
+@media only screen and (max-width: 600px) {
+  .countdown {
     font-size: 1.5rem;
   }
 }
-
-
-
 
 /* .times {
   width: 20%;
