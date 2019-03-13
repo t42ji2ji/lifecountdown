@@ -29,7 +29,7 @@
 
           //- div(class=`c-${index} char`)
   .up
-    button.chinese.btn.btn-start(v-on:click='start') 開始 {{tests}}
+    button.chinese.btn.btn-start(v-on:click='start') 開始
   a#logos.logo(href='https://www.google.com') Doraralab
   //
     <div class="keyboard" v-if="!is_mobile">
@@ -165,8 +165,8 @@ export default {
           y = w.innerHeight || e.clientHeight || g.clientHeight;
         console.log(x + " × " + y);
         var centerpoint = [x / 2, y / 2];
-        var w1 = x / 360;
-        var y1 = y / 180;
+        var w1 = x / 180;
+        var y1 = y / 90;
         this.pos_reg = [x / 2, y / 2, w1, y1];
         if (window.DeviceOrientationEvent) {
           window.addEventListener(
@@ -598,8 +598,8 @@ body {
 }
 
 .birthimg {
-  height: 20rem;
-  width: 20rem;
+  height: 15rem;
+  width: 15rem;
   margin: 2rem;
 }
 
