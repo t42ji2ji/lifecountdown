@@ -181,11 +181,14 @@ export default {
                 Math.floor(vm.pos_reg[0] + vm.pos_reg[2] * vm.gamas),
                 Math.floor(vm.pos_reg[1] + vm.pos_reg[3] * vm.betas),
                 elem,
-                b_canvas, values, radTodegrees
+                b_canvas,
+                values,
+                radTodegrees
               );
               console.log(
-                vm.pos_reg[0] + vm.pos_reg[2]*vm.gamas, "\n",
-                vm.pos_reg[1] + vm.pos_reg[3]*vm.betas
+                vm.pos_reg[0] + vm.pos_reg[2] * vm.gamas,
+                "\n",
+                vm.pos_reg[1] + vm.pos_reg[3] * vm.betas
               );
             },
             false
@@ -193,12 +196,18 @@ export default {
         } else {
           console.log("no");
         }
-        if(this.is_mobile != 0){
+        if (this.is_mobile != 0) {
           content.addEventListener("mousemove", e => {
             console.log(e.clientX, e.clientY);
-            vm.text_animate_setting(e.clientX, e.clientY, elem, b_canvas, values, radTodegrees);
+            vm.text_animate_setting(
+              e.clientX,
+              e.clientY,
+              elem,
+              b_canvas,
+              values,
+              radTodegrees
+            );
           });
-
         }
 
         const animate = () => {
@@ -213,7 +222,7 @@ export default {
       });
     },
     text_animate_setting: function(x, y, elem, b_canvas, values, radTodegrees) {
-            const angleTo = ([x1, y1], [x2, y2]) => Math.atan2(y1 - y2, x1 - x2);
+      const angleTo = ([x1, y1], [x2, y2]) => Math.atan2(y1 - y2, x1 - x2);
       const angle360 = x => (x + 360) % 360;
       const bounds = b_canvas.getBoundingClientRect();
       const radiusX = bounds.width / 2;
@@ -230,7 +239,6 @@ export default {
         Math.min(dist / radiusX, dist / radiusY) * 0.05,
         0.09
       );
-
     },
     birthcountdown: function() {
       this.is_countdown = true;
@@ -586,8 +594,8 @@ body {
   margin-bottom: -2rem;
 }
 
-#logos{
-  margin-top: 1rem
+#logos {
+  margin-top: 1rem;
 }
 
 .countdown {
@@ -612,6 +620,13 @@ body {
 @media only screen and (max-width: 600px) {
   .countdown {
     font-size: 1.5rem;
+  }
+  .btn-start {
+    margin-top: 15rem;
+  }
+  .birthimg {
+    height: 10rem;
+    width: 10rem;
   }
 }
 
