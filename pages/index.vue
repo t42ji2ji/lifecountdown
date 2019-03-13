@@ -225,8 +225,8 @@ export default {
 
       values.degrees = angle360(radTodegrees * rad);
       values.maxDist = Math.min(
-        Math.min(dist / radiusX, dist / radiusY) * 0.02,
-        0.05
+        Math.min(dist / radiusX, dist / radiusY) * 0.05,
+        0.09
       );
 
     },
