@@ -163,7 +163,6 @@ export default {
           g = d.getElementsByTagName("body")[0],
           x = w.innerWidth || e.clientWidth || g.clientWidth,
           y = w.innerHeight || e.clientHeight || g.clientHeight;
-        console.log(x + " × " + y);
         var centerpoint = [x / 2, y / 2];
         var w1 = x / 180;
         var y1 = y / 90;
@@ -185,20 +184,13 @@ export default {
                 values,
                 radTodegrees
               );
-              console.log(
-                vm.pos_reg[0] + vm.pos_reg[2] * vm.gamas,
-                "\n",
-                vm.pos_reg[1] + vm.pos_reg[3] * vm.betas
-              );
             },
             false
           );
         } else {
-          console.log("no");
         }
         if (this.is_mobile != 0) {
           content.addEventListener("mousemove", e => {
-            console.log(e.clientX, e.clientY);
             vm.text_animate_setting(
               e.clientX,
               e.clientY,
