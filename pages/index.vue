@@ -262,10 +262,8 @@ export default {
         if (ms < 100) {
           ms = "0" + ms;
           if (ms < 10) {
-            ms = "00" + ms;
+            ms = "0" + ms;
           }
-        } else if (ms >= 1000) {
-          ms = "999";
         }
         this.timer =
           years +
